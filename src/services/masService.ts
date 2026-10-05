@@ -213,7 +213,7 @@ export const MAS_SORA_HISTORICAL: MASRateRecord[] = [
 ];
 
 export const DEFAULT_INTEGRATION_CONFIG: BackendIntegrationConfig = {
-  apiUrl: '/api/mas-sora',
+  apiUrl: '/api/sora',
   useLiveBackend: false,
   connectionStatus: 'using_cache',
   lastSyncTime: '2026-10-02 09:00 SGT (MAS Official Bulletin)'
@@ -330,7 +330,9 @@ export async function fetchMASRatesFromBackend(
     
     // MAS official e-services datastore response format adapter or direct array
     let parsedRates: MASRateRecord[] = [];
-    if (data.result && Array.isArray(data.result.records)) {
+    if (data.records && Array.isArray(data.records)) {
+      parsedRates = data.records;
+    } else if (data.result && Array.isArray(data.result.records)) {
       parsedRates = data.result.records.map((r: any) => ({
         date: r.end_of_day || r.date,
         sora_rate: parseFloat(r.sora || r.sora_rate || '0'),

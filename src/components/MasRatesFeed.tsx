@@ -24,26 +24,16 @@ export const MasRatesFeed: React.FC<MasRatesFeedProps> = ({
     r.date.includes(filterQuery) || r.sora_rate.toString().includes(filterQuery)
   );
 
-  const sampleBackendPayload = `// Sample Express / Next.js backend endpoint: GET /api/mas-sora
-// MAS Datastore Resource ID for Daily SORA Rates:
-// "9a0bf14e-15e8-4658-ba17-642278d655f4"
+  const sampleBackendPayload = `// Serverless Endpoints located in /api folder:
+// 1. /api/health.ts  -> Health status and configuration check
+// 2. /api/sora.ts    -> Proxies to MAS Domestic Interest Rates Daily API
 
-export async function getMasSoraRates() {
-  const url = "https://eservices.mas.gov.sg/api/action/datastore/search.json?resource_id=9a0bf14e-15e8-4658-ba17-642278d655f4&limit=30&sort=end_of_day%20desc";
-  const response = await fetch(url);
-  const data = await response.json();
-  
-  return data.result.records.map((r) => ({
-    date: r.end_of_day,
-    sora_rate: parseFloat(r.sora),
-    compounded_1m: parseFloat(r.soracompm1),
-    compounded_3m: parseFloat(r.soracompm3),
-    compounded_6m: parseFloat(r.soracompm6),
-    sora_index: parseFloat(r.soraindex),
-    aggregate_volume_mil: parseFloat(r.aggregate_volume || 0),
-    calculation_method: "MAS Volume-weighted average"
-  }));
-}`;
+// MAS Gateway Target Endpoint:
+// https://eservices.mas.gov.sg/apimg-gw/server/monthly_statistical_bulletin_non610mssql/domestic_interest_rates_daily/views/domestic_interest_rates_daily
+// Required Header: KeyId: <MAS_KEY_ID>
+
+// Usage in .env:
+// MAS_KEY_ID="your_mas_key_id_here"`;
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(sampleBackendPayload);
@@ -103,7 +93,7 @@ export async function getMasSoraRates() {
                 type="text"
                 value={integrationConfig.apiUrl}
                 onChange={(e) => onUpdateConfig({ ...integrationConfig, apiUrl: e.target.value })}
-                placeholder="/api/mas-sora or https://your-server.com/api/sora"
+                placeholder="/api/sora or https://your-server.com/api/sora"
                 className="w-full px-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded text-xs font-mono text-white focus:outline-none focus:border-emerald-500"
               />
               <button
@@ -116,7 +106,7 @@ export async function getMasSoraRates() {
               </button>
             </div>
             <p className="text-[11px] text-neutral-500">
-              Default is `/api/mas-sora`. The app automatically caches fallback MAS benchmark data if your backend is currently undergoing maintenance or development.
+              Default is `/api/sora` (connecting to MAS Domestic Interest Rates API with KeyId header). The app falls back to cached MAS benchmark data if MAS_KEY_ID is not configured yet.
             </p>
           </div>
 
